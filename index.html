@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>브랜드 인사이트 허브</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>브랜드 인사이트 허브</h1>
+      <p>브랜드 관점과 법칙을 탐색하는 인사이트 허브</p>
+    </header>
+
+    <div class="search-box">
+      <span class="search-icon">&#128270;</span>
+      <input type="text" id="search-input" placeholder="인사이트명, 키워드, 법칙으로 검색...">
+    </div>
+
+    <div class="track-section">
+      <h3>트랙 필터</h3>
+      <div class="track-tags" id="track-tags"></div>
+    </div>
+
+    <div class="keyword-section">
+      <h3>키워드 필터</h3>
+      <div class="keyword-tags" id="keyword-tags"></div>
+    </div>
+
+    <div class="controls">
+      <span class="result-count">검색 결과: <span id="result-count">0건</span></span>
+      <button class="reset-btn" id="reset-btn">전체 보기</button>
+    </div>
+
+    <div class="insight-list" id="insight-list"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
