@@ -3,38 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>브랜드 인사이트 허브</title>
+  <title>thereafter - Brand Insight Hub</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>브랜드 인사이트 허브</h1>
-      <p>브랜드 관점과 법칙을 탐색하는 인사이트 허브</p>
-    </header>
 
-    <div class="search-box">
-      <span class="search-icon">&#128270;</span>
-      <input type="text" id="search-input" placeholder="인사이트명, 키워드, 법칙으로 검색...">
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-top">
+        <div class="brand">
+          <h1 class="logo">thereafter</h1>
+          <p class="slogan">그 후로도 오래도록.</p>
+        </div>
+        <div class="view-mode" id="view-mode">
+          <button class="mode-btn" data-mode="public">공개</button>
+          <button class="mode-btn" data-mode="meeting">미팅용</button>
+          <button class="mode-btn active" data-mode="internal">내부용</button>
+        </div>
+      </div>
+      <p class="subtitle">Brand Insight Hub</p>
+      <div class="search-box">
+        <span class="search-icon">&#128270;</span>
+        <input type="text" id="search-input" placeholder="인사이트명, 키워드, 법칙으로 검색...">
+      </div>
     </div>
+  </header>
 
-    <div class="track-section">
-      <h3>트랙 필터</h3>
-      <div class="track-tags" id="track-tags"></div>
+  <section class="filter-bar">
+    <div class="filter-inner">
+      <div class="filter-group">
+        <h3>트랙</h3>
+        <div class="filter-tags" id="track-tags"></div>
+      </div>
+      <div class="filter-group">
+        <h3>법칙</h3>
+        <div class="filter-tags" id="law-tags"></div>
+      </div>
+      <div class="filter-group">
+        <h3>키워드</h3>
+        <div class="filter-tags" id="keyword-tags"></div>
+      </div>
     </div>
+  </section>
 
-    <div class="keyword-section">
-      <h3>키워드 필터</h3>
-      <div class="keyword-tags" id="keyword-tags"></div>
+  <main class="content">
+    <div class="content-inner">
+      <div class="controls">
+        <span class="result-count">검색 결과: <span id="result-count">0건</span></span>
+        <button class="reset-btn" id="reset-btn">전체 보기</button>
+      </div>
+      <div class="insight-list" id="insight-list"></div>
     </div>
+  </main>
 
-    <div class="controls">
-      <span class="result-count">검색 결과: <span id="result-count">0건</span></span>
-      <button class="reset-btn" id="reset-btn">전체 보기</button>
-    </div>
+  <footer>
+    <p>thereafter &copy; 2024</p>
+  </footer>
 
-    <div class="insight-list" id="insight-list"></div>
-  </div>
+  <div class="combo-panel" id="combo-panel"></div>
 
   <script src="app.js"></script>
 </body>

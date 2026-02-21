@@ -38,17 +38,27 @@ const insights = [
 
 let activeKeywords = new Set();
 let activeTrack = '';
+let activeLaw = '';
 let searchQuery = '';
+let viewMode = 'internal'; // 'public' | 'meeting' | 'internal'
+let expandedId = null;
+let selectedIds = new Set();
+const MAX_COMBO = 3;
+
+const SLIDE_LABELS = ['현상', '전환', '반전', '본질', '증명', '핵심메시지'];
 
 const searchInput = document.getElementById('search-input');
 const keywordContainer = document.getElementById('keyword-tags');
 const trackContainer = document.getElementById('track-tags');
+const lawContainer = document.getElementById('law-tags');
 const insightList = document.getElementById('insight-list');
 const resultCount = document.getElementById('result-count');
 const resetBtn = document.getElementById('reset-btn');
+const viewModeContainer = document.getElementById('view-mode');
 
 function init() {
   renderTracks();
+  renderLaws();
   renderKeywords();
   renderInsights(insights);
 }
@@ -83,6 +93,42 @@ function toggleTrack(track) {
 function updateTrackUI() {
   trackContainer.querySelectorAll('.track-tag').forEach(tag => {
     tag.classList.toggle('active', tag.dataset.track === activeTrack);
+  });
+}
+
+// 법칙 목록 추출 (번호순 정렬)
+function getAllLaws() {
+  const laws = new Set();
+  insights.forEach(item => {
+    if (item.law) laws.add(item.law);
+  });
+  return [...laws].sort((a, b) => {
+    const numA = parseInt(a) || 99;
+    const numB = parseInt(b) || 99;
+    return numA - numB;
+  });
+}
+
+function renderLaws() {
+  const laws = getAllLaws();
+  lawContainer.innerHTML = laws
+    .map(l => `<span class="law-tag" data-law="${l}">${l}</span>`)
+    .join('');
+
+  lawContainer.querySelectorAll('.law-tag').forEach(tag => {
+    tag.addEventListener('click', () => toggleLaw(tag.dataset.law));
+  });
+}
+
+function toggleLaw(law) {
+  activeLaw = activeLaw === law ? '' : law;
+  updateLawUI();
+  applyFilters();
+}
+
+function updateLawUI() {
+  lawContainer.querySelectorAll('.law-tag').forEach(tag => {
+    tag.classList.toggle('active', tag.dataset.law === activeLaw);
   });
 }
 
@@ -151,6 +197,11 @@ function applyFilters() {
     filtered = filtered.filter(item => item.track === activeTrack);
   }
 
+  // 법칙 필터
+  if (activeLaw) {
+    filtered = filtered.filter(item => item.law === activeLaw);
+  }
+
   // 텍스트 검색 (name, perspective, law, keywords)
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -184,19 +235,81 @@ function renderInsights(list) {
     return;
   }
 
-  insightList.innerHTML = list.map(item => `
-    <article class="insight-card">
-      <div class="card-header">
-        <span class="card-track ${trackClass(item.track)}">${item.track}</span>
-        ${item.law ? `<span class="card-law">${item.law}</span>` : ''}
+  insightList.innerHTML = list.map(item => {
+    const isOpen = expandedId === item.id;
+    const isSelected = selectedIds.has(item.id);
+    const checkboxDisabled = !isSelected && selectedIds.size >= MAX_COMBO;
+    return `
+    <article class="insight-card ${isOpen ? 'expanded' : ''} ${isSelected ? 'selected' : ''}" data-id="${item.id}">
+      <div class="card-body">
+        <div class="card-header">
+          ${viewMode === 'internal' ? `
+          <label class="card-select" title="조합에 추가">
+            <input type="checkbox" data-select-id="${item.id}" ${isSelected ? 'checked' : ''} ${checkboxDisabled ? 'disabled' : ''}>
+          </label>` : ''}
+          <span class="card-track ${trackClass(item.track)}">${item.track}</span>
+          ${item.law && viewMode !== 'public' ? `<span class="card-law">${item.law}</span>` : ''}
+          <span class="card-expand-icon">${isOpen ? '&#9650;' : '&#9660;'}</span>
+        </div>
+        <h3 class="card-name">${highlightText(item.name)}</h3>
+        ${viewMode !== 'public' ? `<p class="card-perspective">${highlightText(item.perspective)}</p>` : ''}
+        <div class="card-keywords">
+          ${item.keywords.map(kw => `<span class="card-keyword">#${kw}</span>`).join('')}
+        </div>
       </div>
-      <h3 class="card-name">${highlightText(item.name)}</h3>
-      <p class="card-perspective">${highlightText(item.perspective)}</p>
-      <div class="card-keywords">
-        ${item.keywords.map(kw => `<span class="card-keyword">#${kw}</span>`).join('')}
+      <div class="card-detail" style="display:${isOpen ? 'block' : 'none'}">
+        ${renderDetail(item)}
       </div>
-    </article>
-  `).join('');
+    </article>`;
+  }).join('');
+
+  insightList.querySelectorAll('.insight-card').forEach(card => {
+    // 체크박스 클릭 — 아코디언과 분리
+    const checkbox = card.querySelector('input[data-select-id]');
+    if (checkbox) {
+      checkbox.addEventListener('click', (e) => e.stopPropagation());
+      checkbox.addEventListener('change', (e) => {
+        e.stopPropagation();
+        toggleSelect(Number(e.target.dataset.selectId));
+      });
+    }
+
+    card.querySelector('.card-body').addEventListener('click', (e) => {
+      // 체크박스 영역 클릭은 무시
+      if (e.target.closest('.card-select')) return;
+      const id = Number(card.dataset.id);
+      expandedId = expandedId === id ? null : id;
+      applyFilters();
+    });
+  });
+}
+
+function renderDetail(item) {
+  if (viewMode === 'internal') {
+    const slides = item.slides || [];
+    return `
+      <div class="detail-slides">
+        ${SLIDE_LABELS.map((label, i) => {
+          const slide = slides[i];
+          const headline = slide ? slide.headline : '';
+          const narrative = slide ? slide.narrative : '';
+          return `
+          <div class="slide-item">
+            <div class="slide-number">${i + 1}</div>
+            <div class="slide-content">
+              <div class="slide-label">${label}</div>
+              <div class="slide-headline">${headline || '<span class="empty-field">헤드라인 미입력</span>'}</div>
+              <div class="slide-narrative">${narrative || '<span class="empty-field">내러티브 미입력</span>'}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  }
+  return `
+    <div class="detail-locked">
+      <span class="lock-icon">&#128274;</span>
+      <p>상세 내용은 미팅에서 공유합니다</p>
+    </div>`;
 }
 
 function trackClass(track) {
@@ -214,10 +327,99 @@ function highlightText(text) {
   return text.replace(regex, '<mark>$1</mark>');
 }
 
+// ================================================
+// 조합 기능
+// ================================================
+const comboPanel = document.getElementById('combo-panel');
+
+function toggleSelect(id) {
+  if (selectedIds.has(id)) {
+    selectedIds.delete(id);
+  } else {
+    if (selectedIds.size >= MAX_COMBO) return;
+    selectedIds.add(id);
+  }
+  applyFilters();
+  renderComboPanel();
+}
+
+function removeFromCombo(id) {
+  selectedIds.delete(id);
+  applyFilters();
+  renderComboPanel();
+}
+
+function clearCombo() {
+  selectedIds.clear();
+  applyFilters();
+  renderComboPanel();
+}
+
+function renderComboPanel() {
+  if (selectedIds.size < 2 || viewMode !== 'internal') {
+    comboPanel.classList.remove('visible');
+    document.body.classList.remove('combo-open');
+    return;
+  }
+
+  const selected = insights.filter(item => selectedIds.has(item.id));
+
+  comboPanel.innerHTML = `
+    <div class="combo-inner">
+      <div class="combo-header">
+        <span class="combo-title">조합 패널 — <span>${selected.length}개</span> 선택됨</span>
+        <button class="combo-close" id="combo-close">선택 해제</button>
+      </div>
+      <div class="combo-cards">
+        ${selected.map(item => `
+        <div class="combo-card">
+          <span class="combo-card-remove" data-remove-id="${item.id}">&times;</span>
+          <div class="combo-card-track">${item.track}</div>
+          <div class="combo-card-name">${item.name}</div>
+          <div class="combo-card-perspective">${item.perspective}</div>
+          <div class="combo-card-keywords">
+            ${item.keywords.map(kw => `<span class="combo-card-kw">#${kw}</span>`).join('')}
+          </div>
+        </div>`).join('')}
+      </div>
+      <div class="combo-memo">
+        <span class="combo-memo-label">MEMO</span>
+        <textarea id="combo-memo-input" placeholder="이 조합을 왜 묶었는지 메모하세요...">${comboMemoText}</textarea>
+      </div>
+    </div>`;
+
+  comboPanel.classList.add('visible');
+  document.body.classList.add('combo-open');
+
+  // 패널 이벤트
+  document.getElementById('combo-close').addEventListener('click', clearCombo);
+
+  comboPanel.querySelectorAll('.combo-card-remove').forEach(btn => {
+    btn.addEventListener('click', () => removeFromCombo(Number(btn.dataset.removeId)));
+  });
+
+  document.getElementById('combo-memo-input').addEventListener('input', (e) => {
+    comboMemoText = e.target.value;
+  });
+}
+
+let comboMemoText = '';
+
 // 이벤트 바인딩
 searchInput.addEventListener('input', (e) => {
   searchQuery = e.target.value.trim();
   applyFilters();
+});
+
+viewModeContainer.addEventListener('click', (e) => {
+  const btn = e.target.closest('.mode-btn');
+  if (!btn) return;
+  viewMode = btn.dataset.mode;
+  viewModeContainer.querySelectorAll('.mode-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === viewMode)
+  );
+  applyFilters();
+  renderComboPanel();
 });
 
 resetBtn.addEventListener('click', () => {
@@ -225,9 +427,14 @@ resetBtn.addEventListener('click', () => {
   searchInput.value = '';
   activeKeywords.clear();
   activeTrack = '';
+  activeLaw = '';
+  selectedIds.clear();
+  comboMemoText = '';
   updateKeywordUI();
   updateTrackUI();
+  updateLawUI();
   applyFilters();
+  renderComboPanel();
 });
 
 init();
