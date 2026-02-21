@@ -160,6 +160,31 @@ body {
   gap: 7px;
 }
 
+/* BTL type — beige outline, dark text */
+.btl-tag {
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  background: transparent;
+  color: #6B6347;
+  border: 1.5px solid #AEA48A;
+}
+
+.btl-tag:hover {
+  background: rgba(181,173,142,0.15);
+}
+
+.btl-tag.active {
+  background: var(--olive);
+  color: #fff;
+  border-color: var(--olive);
+  box-shadow: 0 2px 8px rgba(181,173,142,0.35);
+}
+
 /* Track — orange filled */
 .track-tag {
   padding: 5px 14px;
@@ -465,6 +490,90 @@ body {
 }
 
 .empty-field {
+  color: #C7C3BB;
+  font-style: italic;
+}
+
+/* BTL 실행 섹션 */
+.btl-section {
+  border-top: 1px dashed var(--border);
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
+.btl-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--olive);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btl-section-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 12px;
+  background: var(--olive);
+  border-radius: 2px;
+}
+
+.btl-type-badges {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.btl-type-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 4px;
+  background: rgba(181,173,142,0.18);
+  color: #8A8368;
+}
+
+.btl-type-badge.empty {
+  background: transparent;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.btl-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btl-field {
+  background: #FAFAF8;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.btl-field-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--olive);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.btl-field-value {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.btl-field-value.empty {
   color: #C7C3BB;
   font-style: italic;
 }

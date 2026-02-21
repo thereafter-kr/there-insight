@@ -39,6 +39,7 @@ const insights = [
 let activeKeywords = new Set();
 let activeTrack = '';
 let activeLaw = '';
+let activeBtlTypes = new Set();
 let searchQuery = '';
 let viewMode = 'internal'; // 'public' | 'meeting' | 'internal'
 let expandedId = null;
@@ -46,8 +47,25 @@ let selectedIds = new Set();
 const MAX_COMBO = 3;
 
 const SLIDE_LABELS = ['현상', '전환', '반전', '본질', '증명', '핵심메시지'];
+const BTL_TYPES = ['경험공간', '이벤트', '전시'];
+const BTL_FIELD_LABELS = {
+  spaceDesign: '공간설계',
+  experienceDesign: '경험설계',
+  executionIdea: '실행 아이디어',
+  kpi: '성과지표'
+};
+
+// 35개 데이터에 BTL 기본 필드 주입
+insights.forEach(item => {
+  if (!item.btlType) item.btlType = [];
+  if (!item.spaceDesign) item.spaceDesign = '';
+  if (!item.experienceDesign) item.experienceDesign = '';
+  if (!item.executionIdea) item.executionIdea = '';
+  if (!item.kpi) item.kpi = '';
+});
 
 const searchInput = document.getElementById('search-input');
+const btlContainer = document.getElementById('btl-tags');
 const keywordContainer = document.getElementById('keyword-tags');
 const trackContainer = document.getElementById('track-tags');
 const lawContainer = document.getElementById('law-tags');
@@ -57,10 +75,38 @@ const resetBtn = document.getElementById('reset-btn');
 const viewModeContainer = document.getElementById('view-mode');
 
 function init() {
+  renderBtlTypes();
   renderTracks();
   renderLaws();
   renderKeywords();
   renderInsights(insights);
+}
+
+// BTL 유형 필터
+function renderBtlTypes() {
+  btlContainer.innerHTML = BTL_TYPES
+    .map(t => `<span class="btl-tag" data-btl="${t}">${t}</span>`)
+    .join('');
+
+  btlContainer.querySelectorAll('.btl-tag').forEach(tag => {
+    tag.addEventListener('click', () => toggleBtlType(tag.dataset.btl));
+  });
+}
+
+function toggleBtlType(type) {
+  if (activeBtlTypes.has(type)) {
+    activeBtlTypes.delete(type);
+  } else {
+    activeBtlTypes.add(type);
+  }
+  updateBtlTypeUI();
+  applyFilters();
+}
+
+function updateBtlTypeUI() {
+  btlContainer.querySelectorAll('.btl-tag').forEach(tag => {
+    tag.classList.toggle('active', activeBtlTypes.has(tag.dataset.btl));
+  });
 }
 
 // 트랙 목록 추출
@@ -192,6 +238,13 @@ function updateKeywordUI() {
 function applyFilters() {
   let filtered = insights;
 
+  // BTL 유형 필터 (OR 조건: 선택한 유형 중 하나라도 포함)
+  if (activeBtlTypes.size > 0) {
+    filtered = filtered.filter(item =>
+      item.btlType && item.btlType.some(t => activeBtlTypes.has(t))
+    );
+  }
+
   // 트랙 필터
   if (activeTrack) {
     filtered = filtered.filter(item => item.track === activeTrack);
@@ -303,12 +356,35 @@ function renderDetail(item) {
             </div>
           </div>`;
         }).join('')}
-      </div>`;
+      </div>
+      ${renderBtlSection(item)}`;
   }
   return `
     <div class="detail-locked">
       <span class="lock-icon">&#128274;</span>
       <p>상세 내용은 미팅에서 공유합니다</p>
+    </div>`;
+}
+
+function renderBtlSection(item) {
+  const types = item.btlType || [];
+  const typeBadges = types.length > 0
+    ? types.map(t => `<span class="btl-type-badge">${t}</span>`).join('')
+    : '<span class="btl-type-badge empty">유형 미지정</span>';
+
+  const fields = ['spaceDesign', 'experienceDesign', 'executionIdea', 'kpi'];
+
+  return `
+    <div class="btl-section">
+      <div class="btl-section-title">BTL 실행</div>
+      <div class="btl-type-badges">${typeBadges}</div>
+      <div class="btl-fields">
+        ${fields.map(key => `
+        <div class="btl-field">
+          <div class="btl-field-label">${BTL_FIELD_LABELS[key]}</div>
+          <div class="btl-field-value ${item[key] ? '' : 'empty'}">${item[key] || '미입력'}</div>
+        </div>`).join('')}
+      </div>
     </div>`;
 }
 
@@ -428,11 +504,13 @@ resetBtn.addEventListener('click', () => {
   activeKeywords.clear();
   activeTrack = '';
   activeLaw = '';
+  activeBtlTypes.clear();
   selectedIds.clear();
   comboMemoText = '';
   updateKeywordUI();
   updateTrackUI();
   updateLawUI();
+  updateBtlTypeUI();
   applyFilters();
   renderComboPanel();
 });
