@@ -55,14 +55,32 @@ const BTL_FIELD_LABELS = {
   kpi: '성과지표'
 };
 
-// 35개 데이터에 BTL 기본 필드 주입
+// 35개 데이터에 기본 필드 주입
 insights.forEach(item => {
   if (!item.btlType) item.btlType = [];
   if (!item.spaceDesign) item.spaceDesign = '';
   if (!item.experienceDesign) item.experienceDesign = '';
   if (!item.executionIdea) item.executionIdea = '';
   if (!item.kpi) item.kpi = '';
+  // 이미지 필드
+  if (!item.heroImage) item.heroImage = '';
+  if (!item.currentStateImages) item.currentStateImages = [];
+  if (!item.brandRefImages) item.brandRefImages = [];
+  if (!item.spaceDesignImages) item.spaceDesignImages = [];
+  if (!item.experienceDesignImages) item.experienceDesignImages = [];
+  if (!item.conceptImages) item.conceptImages = [];
+  if (!item.moodboard) item.moodboard = '';
 });
+
+// 이미지 갤러리 설정
+const IMAGE_SECTIONS = [
+  { key: 'currentStateImages', label: '현상 이미지', modes: ['meeting', 'internal'] },
+  { key: 'brandRefImages', label: '브랜드 레퍼런스', modes: ['meeting', 'internal'] },
+  { key: 'spaceDesignImages', label: '공간설계 레퍼런스', modes: ['internal'] },
+  { key: 'experienceDesignImages', label: '경험설계 레퍼런스', modes: ['internal'] },
+  { key: 'conceptImages', label: '실행 컨셉', modes: ['internal'] },
+  { key: 'moodboard', label: '무드보드', modes: ['internal'], single: true }
+];
 
 const searchInput = document.getElementById('search-input');
 const btlContainer = document.getElementById('btl-tags');
@@ -292,6 +310,10 @@ function renderInsights(list) {
     const isOpen = expandedId === item.id;
     const isSelected = selectedIds.has(item.id);
     const checkboxDisabled = !isSelected && selectedIds.size >= MAX_COMBO;
+    const thumbHtml = item.heroImage
+      ? `<div class="card-thumb"><img src="${item.heroImage}" alt="" data-lightbox="${item.heroImage}"></div>`
+      : '';
+
     return `
     <article class="insight-card ${isOpen ? 'expanded' : ''} ${isSelected ? 'selected' : ''}" data-id="${item.id}">
       <div class="card-body">
@@ -304,10 +326,15 @@ function renderInsights(list) {
           ${item.law && viewMode !== 'public' ? `<span class="card-law">${item.law}</span>` : ''}
           <span class="card-expand-icon">${isOpen ? '&#9650;' : '&#9660;'}</span>
         </div>
-        <h3 class="card-name">${highlightText(item.name)}</h3>
-        ${viewMode !== 'public' ? `<p class="card-perspective">${highlightText(item.perspective)}</p>` : ''}
-        <div class="card-keywords">
-          ${item.keywords.map(kw => `<span class="card-keyword">#${kw}</span>`).join('')}
+        <div class="card-body-wrap">
+          ${thumbHtml}
+          <div class="card-main">
+            <h3 class="card-name">${highlightText(item.name)}</h3>
+            ${viewMode !== 'public' ? `<p class="card-perspective">${highlightText(item.perspective)}</p>` : ''}
+            <div class="card-keywords">
+              ${item.keywords.map(kw => `<span class="card-keyword">#${kw}</span>`).join('')}
+            </div>
+          </div>
         </div>
       </div>
       <div class="card-detail" style="display:${isOpen ? 'block' : 'none'}">
@@ -357,9 +384,20 @@ function renderDetail(item) {
           </div>`;
         }).join('')}
       </div>
+      ${renderImageGalleries(item)}
       ${renderBtlSection(item)}`;
   }
+  if (viewMode === 'meeting') {
+    return `
+      ${renderImageGalleries(item)}
+      <div class="detail-locked">
+        <span class="lock-icon">&#128274;</span>
+        <p>상세 내용은 내부용 모드에서 확인하세요</p>
+      </div>`;
+  }
+  // public
   return `
+    ${renderImageGalleries(item)}
     <div class="detail-locked">
       <span class="lock-icon">&#128274;</span>
       <p>상세 내용은 미팅에서 공유합니다</p>
@@ -387,6 +425,71 @@ function renderBtlSection(item) {
       </div>
     </div>`;
 }
+
+function renderImageGalleries(item) {
+  let html = '';
+
+  IMAGE_SECTIONS.forEach(sec => {
+    if (!sec.modes.includes(viewMode)) return;
+
+    if (sec.single) {
+      // 단일 이미지 (moodboard)
+      const src = item[sec.key];
+      html += `
+        <div class="img-gallery-section">
+          <div class="img-gallery-label">${sec.label}</div>
+          <div class="img-gallery">
+            ${src
+              ? `<div class="img-gallery-item moodboard"><img src="${src}" alt="${sec.label}" data-lightbox="${src}"></div>`
+              : `<div class="img-placeholder moodboard">이미지 미등록</div>`}
+          </div>
+        </div>`;
+    } else {
+      // 배열 이미지
+      const images = item[sec.key] || [];
+      html += `
+        <div class="img-gallery-section">
+          <div class="img-gallery-label">${sec.label}</div>
+          <div class="img-gallery">
+            ${images.length > 0
+              ? images.map(src => `<div class="img-gallery-item"><img src="${src}" alt="${sec.label}" data-lightbox="${src}"></div>`).join('')
+              : `<div class="img-placeholder">이미지 미등록</div>`}
+          </div>
+        </div>`;
+    }
+  });
+
+  return html;
+}
+
+// 라이트박스
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+
+function openLightbox(src) {
+  lightboxImg.src = src;
+  lightbox.classList.add('active');
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('active');
+  lightboxImg.src = '';
+}
+
+document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+document.querySelector('.lightbox-backdrop').addEventListener('click', closeLightbox);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// 이미지 클릭 이벤트 위임 (동적 요소)
+document.addEventListener('click', (e) => {
+  const img = e.target.closest('[data-lightbox]');
+  if (img) {
+    e.stopPropagation();
+    openLightbox(img.dataset.lightbox);
+  }
+});
 
 function trackClass(track) {
   if (track.startsWith('Track1')) return 'track-1';
