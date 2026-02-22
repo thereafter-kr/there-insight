@@ -175,17 +175,15 @@ body {
 
 #law-tags {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 7px;
 }
 
 #law-tags .law-tag {
   font-size: 11px;
-  padding: 7px 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
+  padding: 7px 4px;
+  word-break: keep-all;
+  line-height: 1.3;
 }
 
 /* Keyword autocomplete */
