@@ -175,15 +175,8 @@ body {
 
 #law-tags {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 7px;
-}
-
-#law-tags .law-tag {
-  font-size: 11px;
-  padding: 7px 4px;
-  word-break: keep-all;
-  line-height: 1.3;
 }
 
 /* Keyword autocomplete */
@@ -1087,5 +1080,5 @@ body.combo-open {
 @media (max-width: 768px) {
   #btl-tags { grid-template-columns: repeat(2, 1fr); }
   #track-tags { grid-template-columns: repeat(2, 1fr); }
-  #law-tags { grid-template-columns: repeat(3, 1fr); }
+  #law-tags { grid-template-columns: 1fr; }
 }
