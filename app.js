@@ -41,7 +41,7 @@ let activeTrack = '';
 let activeLaw = '';
 let activeBtlTypes = new Set();
 let searchQuery = '';
-let viewMode = 'internal'; // 'public' | 'meeting' | 'internal'
+let viewMode = 'public'; // 'public' | 'meeting' | 'internal'
 let expandedId = null;
 let selectedIds = new Set();
 const MAX_COMBO = 3;
@@ -590,10 +590,26 @@ searchInput.addEventListener('input', (e) => {
   applyFilters();
 });
 
+const MODE_PASSWORDS = {
+  meeting: 'thereinsight2026',
+  internal: 'thereafter2026'
+};
+
 viewModeContainer.addEventListener('click', (e) => {
   const btn = e.target.closest('.mode-btn');
   if (!btn) return;
-  viewMode = btn.dataset.mode;
+  const targetMode = btn.dataset.mode;
+  if (targetMode === 'public') {
+    viewMode = 'public';
+  } else {
+    const pw = prompt(`${targetMode === 'meeting' ? '미팅용' : '내부용'} 모드 비밀번호를 입력하세요.`);
+    if (pw === null) return;
+    if (pw !== MODE_PASSWORDS[targetMode]) {
+      alert('접근 권한이 없습니다.');
+      return;
+    }
+    viewMode = targetMode;
+  }
   viewModeContainer.querySelectorAll('.mode-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.mode === viewMode)
   );
