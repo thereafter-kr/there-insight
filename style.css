@@ -145,13 +145,13 @@ body {
 }
 
 .filter-group h3 {
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
-  color: var(--olive);
+  color: var(--text);
   letter-spacing: 1px;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(181,173,142,0.4);
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(51,51,51,0.2);
 }
 
 .filter-tags {
