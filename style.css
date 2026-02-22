@@ -179,6 +179,15 @@ body {
   gap: 7px;
 }
 
+#law-tags .law-tag {
+  font-size: 11px;
+  padding: 7px 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
 /* Keyword autocomplete */
 .keyword-filter {
   display: flex;
