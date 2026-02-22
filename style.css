@@ -43,28 +43,18 @@ body {
   margin-bottom: 2px;
 }
 
-.logo {
-  line-height: 1;
-}
-
-.logo img {
-  height: 32px;
+.brand-logo {
+  height: 16px;
   width: auto;
+  opacity: 0.6;
 }
 
-.slogan {
-  font-size: 13px;
-  color: rgba(255,255,255,0.8);
-  letter-spacing: 1px;
-  margin-top: 4px;
-}
-
-.subtitle {
-  font-size: 11px;
-  color: rgba(255,255,255,0.45);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-top: 8px;
+.main-title {
+  font-size: 32px;
+  font-weight: 300;
+  color: #fff;
+  letter-spacing: 6px;
+  margin-top: 20px;
   margin-bottom: 28px;
 }
 
