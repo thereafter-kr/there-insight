@@ -84,7 +84,7 @@ const IMAGE_SECTIONS = [
 
 const searchInput = document.getElementById('search-input');
 const btlContainer = document.getElementById('btl-tags');
-const keywordContainer = document.getElementById('keyword-tags');
+const keywordFilterContainer = document.getElementById('keyword-filter');
 const trackContainer = document.getElementById('track-tags');
 const lawContainer = document.getElementById('law-tags');
 const insightList = document.getElementById('insight-list');
@@ -209,32 +209,53 @@ function getAllKeywords() {
     .map(([kw]) => kw);
 }
 
-const KEYWORD_LIMIT = 15;
-let keywordsExpanded = false;
+const keywordInput = document.getElementById('keyword-input');
+const keywordDropdown = document.getElementById('keyword-dropdown');
+const keywordSelected = document.getElementById('keyword-selected');
 
-function renderKeywords() {
-  const keywords = getAllKeywords();
-  const visible = keywordsExpanded ? keywords : keywords.slice(0, KEYWORD_LIMIT);
-  const hasMore = keywords.length > KEYWORD_LIMIT;
+function renderKeywords() {}
 
-  keywordContainer.innerHTML = visible
-    .map(kw => `<span class="keyword-tag" data-keyword="${kw}">${kw}</span>`)
-    .join('')
-    + (hasMore ? `<span class="keyword-toggle" id="keyword-toggle">${keywordsExpanded ? '접기' : `+${keywords.length - KEYWORD_LIMIT}개 더보기`}</span>` : '');
-
-  keywordContainer.querySelectorAll('.keyword-tag').forEach(tag => {
-    tag.addEventListener('click', () => toggleKeyword(tag.dataset.keyword));
-  });
-
-  const toggleBtn = document.getElementById('keyword-toggle');
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      keywordsExpanded = !keywordsExpanded;
-      renderKeywords();
-      updateKeywordUI();
+function renderSelectedKeywords() {
+  keywordSelected.innerHTML = [...activeKeywords].map(kw =>
+    `<span class="keyword-chip" data-keyword="${kw}">${kw}<span class="keyword-chip-x">&times;</span></span>`
+  ).join('');
+  keywordSelected.querySelectorAll('.keyword-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      activeKeywords.delete(chip.dataset.keyword);
+      renderSelectedKeywords();
+      applyFilters();
     });
-  }
+  });
 }
+
+function showKeywordDropdown(query) {
+  const all = getAllKeywords();
+  const q = query.toLowerCase();
+  const matches = q ? all.filter(kw => kw.toLowerCase().includes(q) && !activeKeywords.has(kw)) : [];
+  if (matches.length === 0) {
+    keywordDropdown.classList.remove('visible');
+    keywordDropdown.innerHTML = '';
+    return;
+  }
+  keywordDropdown.innerHTML = matches.slice(0, 10).map(kw =>
+    `<div class="keyword-option" data-keyword="${kw}">${kw}</div>`
+  ).join('');
+  keywordDropdown.classList.add('visible');
+  keywordDropdown.querySelectorAll('.keyword-option').forEach(opt => {
+    opt.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      activeKeywords.add(opt.dataset.keyword);
+      keywordInput.value = '';
+      keywordDropdown.classList.remove('visible');
+      renderSelectedKeywords();
+      applyFilters();
+    });
+  });
+}
+
+keywordInput.addEventListener('input', () => showKeywordDropdown(keywordInput.value));
+keywordInput.addEventListener('focus', () => { if (keywordInput.value) showKeywordDropdown(keywordInput.value); });
+keywordInput.addEventListener('blur', () => { keywordDropdown.classList.remove('visible'); });
 
 function toggleKeyword(keyword) {
   if (activeKeywords.has(keyword)) {
@@ -242,14 +263,12 @@ function toggleKeyword(keyword) {
   } else {
     activeKeywords.add(keyword);
   }
-  updateKeywordUI();
+  renderSelectedKeywords();
   applyFilters();
 }
 
 function updateKeywordUI() {
-  keywordContainer.querySelectorAll('.keyword-tag').forEach(tag => {
-    tag.classList.toggle('active', activeKeywords.has(tag.dataset.keyword));
-  });
+  renderSelectedKeywords();
 }
 
 // 검색 + 키워드 + 트랙 필터 동시 적용
