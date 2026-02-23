@@ -296,7 +296,7 @@ function applyFilters() {
 
   // 공개 모드: 지정된 20개만 표시
   if (viewMode === 'public') {
-    filtered = filtered.filter(item => PUBLIC_INSIGHT_IDS.has(item.id));
+    filtered = filtered.filter(item => PUBLIC_INSIGHT_IDS.has(Number(item.id)));
   }
 
   // BTL 유형 필터 (OR 조건: 선택한 유형 중 하나라도 포함)
