@@ -62,6 +62,9 @@ let expandedId = null;
 let selectedIds = new Set();
 const MAX_COMBO = 3;
 
+// 공개 모드에서 표시할 인사이트 ID 목록
+const PUBLIC_INSIGHT_IDS = new Set([3, 5, 7, 8, 13, 15, 16, 17, 22, 23, 27, 30, 33, 34, 38, 41, 43, 48, 49, 50]);
+
 const SLIDE_LABELS = ['현상 ①', '현상 ②', '전환', '반전', '본질', '증명', '핵심메시지'];
 const BTL_TYPES = ['경험공간', '이벤트', '전시'];
 const BTL_FIELD_LABELS = {
@@ -291,6 +294,11 @@ function updateKeywordUI() {
 function applyFilters() {
   let filtered = insights;
 
+  // 공개 모드: 지정된 20개만 표시
+  if (viewMode === 'public') {
+    filtered = filtered.filter(item => PUBLIC_INSIGHT_IDS.has(item.id));
+  }
+
   // BTL 유형 필터 (OR 조건: 선택한 유형 중 하나라도 포함)
   if (activeBtlTypes.size > 0) {
     filtered = filtered.filter(item =>
@@ -341,11 +349,14 @@ function renderInsights(list) {
     return;
   }
 
+  // 공개/미팅 모드에서는 상세 열림 상태 초기화
+  const canExpand = viewMode === 'internal';
+
   insightList.innerHTML = list.map(item => {
-    const isOpen = expandedId === item.id;
+    const isOpen = canExpand && expandedId === item.id;
     const isSelected = selectedIds.has(item.id);
     const checkboxDisabled = !isSelected && selectedIds.size >= MAX_COMBO;
-    const thumbHtml = item.heroImage
+    const thumbHtml = (viewMode !== 'public' && item.heroImage)
       ? `<div class="card-thumb"><img src="${item.heroImage}" alt="" data-lightbox="${item.heroImage}"></div>`
       : '';
 
@@ -359,7 +370,7 @@ function renderInsights(list) {
           </label>` : ''}
           <span class="card-track ${trackClass(item.track)}">${item.track}</span>
           ${item.law && viewMode !== 'public' ? `<span class="card-law">${item.law}</span>` : ''}
-          <span class="card-expand-icon">${isOpen ? '&#9650;' : '&#9660;'}</span>
+          ${canExpand ? `<span class="card-expand-icon">${isOpen ? '&#9650;' : '&#9660;'}</span>` : ''}
         </div>
         <div class="card-body-wrap">
           ${thumbHtml}
@@ -372,9 +383,10 @@ function renderInsights(list) {
           </div>
         </div>
       </div>
+      ${canExpand ? `
       <div class="card-detail" style="display:${isOpen ? 'block' : 'none'}">
         ${renderDetail(item)}
-      </div>
+      </div>` : ''}
     </article>`;
   }).join('');
 
@@ -389,54 +401,40 @@ function renderInsights(list) {
       });
     }
 
-    card.querySelector('.card-body').addEventListener('click', (e) => {
-      // 체크박스 영역 클릭은 무시
-      if (e.target.closest('.card-select')) return;
-      const id = Number(card.dataset.id);
-      expandedId = expandedId === id ? null : id;
-      applyFilters();
-    });
+    // 내부 모드에서만 클릭으로 상세 열림
+    if (canExpand) {
+      card.querySelector('.card-body').addEventListener('click', (e) => {
+        if (e.target.closest('.card-select')) return;
+        const id = Number(card.dataset.id);
+        expandedId = expandedId === id ? null : id;
+        applyFilters();
+      });
+    }
   });
 }
 
 function renderDetail(item) {
-  if (viewMode === 'internal') {
-    const slides = item.slides || [];
-    return `
-      <div class="detail-slides">
-        ${SLIDE_LABELS.map((label, i) => {
-          const slide = slides[i];
-          const headline = slide ? slide.headline : '';
-          const narrative = slide ? slide.narrative : '';
-          return `
-          <div class="slide-item">
-            <div class="slide-number">${i + 1}</div>
-            <div class="slide-content">
-              <div class="slide-label">${label}</div>
-              <div class="slide-headline">${headline || '<span class="empty-field">헤드라인 미입력</span>'}</div>
-              <div class="slide-narrative">${narrative || '<span class="empty-field">내러티브 미입력</span>'}</div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-      ${renderImageGalleries(item)}
-      ${renderBtlSection(item)}`;
-  }
-  if (viewMode === 'meeting') {
-    return `
-      ${renderImageGalleries(item)}
-      <div class="detail-locked">
-        <span class="lock-icon">&#128274;</span>
-        <p>상세 내용은 내부용 모드에서 확인하세요</p>
-      </div>`;
-  }
-  // public
+  // renderDetail은 내부 모드에서만 호출됨
+  const slides = item.slides || [];
   return `
+    <div class="detail-slides">
+      ${SLIDE_LABELS.map((label, i) => {
+        const slide = slides[i];
+        const headline = slide ? slide.headline : '';
+        const narrative = slide ? slide.narrative : '';
+        return `
+        <div class="slide-item">
+          <div class="slide-number">${i + 1}</div>
+          <div class="slide-content">
+            <div class="slide-label">${label}</div>
+            <div class="slide-headline">${headline || '<span class="empty-field">헤드라인 미입력</span>'}</div>
+            <div class="slide-narrative">${narrative || '<span class="empty-field">내러티브 미입력</span>'}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
     ${renderImageGalleries(item)}
-    <div class="detail-locked">
-      <span class="lock-icon">&#128274;</span>
-      <p>상세 내용은 미팅에서 공유합니다</p>
-    </div>`;
+    ${renderBtlSection(item)}`;
 }
 
 function renderBtlSection(item) {
@@ -645,6 +643,7 @@ viewModeContainer.addEventListener('click', (e) => {
     }
     viewMode = targetMode;
   }
+  expandedId = null;
   viewModeContainer.querySelectorAll('.mode-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.mode === viewMode)
   );
