@@ -116,7 +116,7 @@ function init() {
   renderTracks();
   renderLaws();
   renderKeywords();
-  renderInsights(insights);
+  applyFilters();
 }
 
 // BTL 유형 필터
