@@ -63,7 +63,7 @@ let selectedIds = new Set();
 const MAX_COMBO = 3;
 
 // 공개 모드에서 표시할 인사이트 ID 목록
-const PUBLIC_INSIGHT_IDS = new Set([3, 5, 7, 8, 13, 15, 16, 17, 22, 23, 27, 30, 33, 34, 38, 41, 43, 48, 49, 50]);
+const PUBLIC_INSIGHT_IDS = new Set([3, 7, 13, 17, 23, 30, 34, 41, 48, 50]);
 
 const SLIDE_LABELS = ['현상 ①', '현상 ②', '전환', '반전', '본질', '증명', '핵심메시지'];
 const BTL_TYPES = ['경험공간', '이벤트', '전시'];
