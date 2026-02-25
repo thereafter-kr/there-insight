@@ -99,6 +99,12 @@
     justify-content: center;
   }
 
+  a.card {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
   .card:hover {
     background: var(--card-bg-hover);
     transform: translateY(-2px);
@@ -462,13 +468,13 @@
 
     <!-- Row 1: There Insight ← → There Source -->
     <div class="card-row">
-      <div class="card">
+      <a href="https://thereafter-kr.github.io/there-insight/" class="card">
         <div class="label there">THERE</div>
         <div class="title">There Insight</div>
         <div class="desc">인사이트 라이브러리</div>
         <div><span class="badge-live">LIVE</span></div>
-        <a href="#" class="link">바로가기 →</a>
-      </div>
+        <span class="link">바로가기 →</span>
+      </a>
 
       <div class="flow-horizontal">
         <div class="flow-h-line">
@@ -478,11 +484,12 @@
         <div class="flow-label">참조</div>
       </div>
 
-      <div class="card">
+      <a href="https://thereafter-kr.github.io/there-source/" class="card">
         <div class="label there">THERE</div>
         <div class="title">There Source</div>
         <div class="desc">실행 패턴 & 사례 라이브러리</div>
-      </div>
+        <span class="link">바로가기 →</span>
+      </a>
     </div>
 
     <!-- Flow: Row 1 → Row 2 (merge then down) -->
@@ -501,11 +508,12 @@
 
     <!-- Row 2: There Match (center) -->
     <div class="card-row" style="justify-content: center;">
-      <div class="card" style="max-width: 480px;">
+      <a href="https://thereafter-kr.github.io/there-match/" class="card" style="max-width: 480px;">
         <div class="label there">THERE</div>
         <div class="title">There Match</div>
         <div class="desc">모듈 조합 추천</div>
-      </div>
+        <span class="link">바로가기 →</span>
+      </a>
     </div>
 
     <!-- Flow: Row 2 → Phase 2 -->
@@ -524,11 +532,12 @@
 
     <!-- Row 3: After Brief -->
     <div class="card-row" style="justify-content: center;">
-      <div class="card" style="max-width: 480px;">
+      <a href="https://thereafter-kr.github.io/after-brief/" class="card" style="max-width: 480px;">
         <div class="label after">AFTER</div>
         <div class="title">After Brief</div>
         <div class="desc">20슬라이드 메시지 설계 에디터</div>
-      </div>
+        <span class="link">바로가기 →</span>
+      </a>
     </div>
 
     <!-- Flow: Row 3 → Row 4 -->
