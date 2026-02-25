@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>thereafter 시스템</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+
+  :root {
+    --bg: #8E8B6F;
+    --card-bg: #D8D3BC;
+    --card-bg-hover: #E0DCCA;
+    --text-dark: #2C2B24;
+    --text-mid: #5A5845;
+    --text-light: #7A7862;
+    --accent-orange: #E8913A;
+    --accent-green: #6B8F5E;
+    --there-color: #5A5845;
+    --after-color: #C67A28;
+    --flow-line: #6B6952;
+    --flow-arrow: #5A5845;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .header h1 {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    font-style: normal;
+    color: #F0EDE0;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+
+  .header h1 span {
+    font-weight: 300;
+    margin-left: 6px;
+  }
+
+  .header .subtitle {
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: #D8D3BC;
+    letter-spacing: 0.08em;
+  }
+
+  /* Process Layout */
+  .process-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Row */
+  .card-row {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+  }
+
+  .card-row.single {
+    justify-content: flex-start;
+  }
+
+  /* Card */
+  .card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    flex: 1;
+    max-width: 480px;
+    min-height: 140px;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .card:hover {
+    background: var(--card-bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+
+  .card .label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .card .label.there { color: var(--there-color); }
+  .card .label.after { color: var(--after-color); }
+
+  .card .title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+  }
+
+  .card .desc {
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: var(--text-mid);
+    margin-bottom: 12px;
+  }
+
+  .badge-live {
+    display: inline-block;
+    background: var(--accent-orange);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+
+  .card .link {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-mid);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .card .link:hover {
+    color: var(--text-dark);
+  }
+
+  /* Process Flow Connector */
+  .flow-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0;
+    position: relative;
+  }
+
+  .flow-connector.horizontal {
+    flex-direction: row;
+    gap: 0;
+    padding: 16px 40px;
+  }
+
+  /* Vertical arrow between rows */
+  .flow-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0;
+  }
+
+  .flow-vertical .flow-line {
+    width: 2px;
+    height: 20px;
+    background: var(--flow-line);
+    opacity: 0.5;
+  }
+
+  .flow-vertical .flow-arrow {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--flow-arrow);
+    opacity: 0.6;
+  }
+
+  .flow-vertical .flow-label {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: #D8D3BC;
+    letter-spacing: 0.06em;
+    margin: 6px 0;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* Horizontal flow between cards in same row */
+  .flow-horizontal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  .flow-horizontal .flow-h-line {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  .flow-horizontal .line {
+    width: 40px;
+    height: 2px;
+    background: var(--flow-line);
+    opacity: 0.5;
+  }
+
+  .flow-horizontal .arrow-right {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 8px solid var(--flow-arrow);
+    opacity: 0.6;
+  }
+
+  .flow-horizontal .flow-label {
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: #D8D3BC;
+    letter-spacing: 0.04em;
+    margin-top: 6px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  /* Split flow (1 → 2) */
+  .flow-split {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 12px 0;
+    position: relative;
+    height: 60px;
+  }
+
+  .flow-split .split-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-split .split-line-v {
+    width: 2px;
+    height: 14px;
+    background: var(--flow-line);
+    opacity: 0.5;
+  }
+
+  .flow-split .split-line-h {
+    width: 504px;
+    height: 2px;
+    background: var(--flow-line);
+    opacity: 0.5;
+  }
+
+  .flow-split .split-branches {
+    display: flex;
+    justify-content: space-between;
+    width: 504px;
+  }
+
+  .flow-split .branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-split .branch .branch-line {
+    width: 2px;
+    height: 14px;
+    background: var(--flow-line);
+    opacity: 0.5;
+  }
+
+  .flow-split .branch .branch-arrow {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--flow-arrow);
+    opacity: 0.6;
+  }
+
+  .flow-split .split-label {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: #D8D3BC;
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+  }
+
+  /* Merge flow (2 → 1) */
+  .flow-merge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    position: relative;
+  }
+
+  .flow-merge .merge-branches {
+    display: flex;
+    justify-content: space-between;
+    width: 504px;
+  }
+
+  .flow-merge .merge-branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-merge .merge-branch .merge-line-up {
+    width: 2px;
+    height: 14px;
+    background: var(--flow-line);
+    opacity: 0.5;
+  }
+
+  .flow-merge .merge-line-h {
+    width: 504px;
+    height: 2px;
+    background: var(--flow-line);
+    opacity: 0.5;
+  }
+
+  .flow-merge .merge-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flow-merge .merge-line-down {
+    width: 2px;
+    height: 14px;
+    background: var(--flow-line);
+    opacity: 0.5;
+  }
+
+  .flow-merge .merge-arrow {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--flow-arrow);
+    opacity: 0.6;
+  }
+
+  .flow-merge .merge-label {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: #D8D3BC;
+    margin-top: 4px;
+  }
+
+  /* Phase Labels */
+  .phase-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+
+  .phase-label .phase-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #D8D3BC;
+    opacity: 0.7;
+  }
+
+  .phase-label .phase-line {
+    flex: 1;
+    height: 1px;
+    background: #D8D3BC;
+    opacity: 0.2;
+  }
+
+  /* Animation */
+  .card, .flow-vertical, .flow-split, .flow-merge, .phase-label {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.1s; }
+
+  .process-layout > *:nth-child(1) { animation-delay: 0.05s; }
+  .process-layout > *:nth-child(2) { animation-delay: 0.15s; }
+  .process-layout > *:nth-child(3) { animation-delay: 0.25s; }
+  .process-layout > *:nth-child(4) { animation-delay: 0.35s; }
+  .process-layout > *:nth-child(5) { animation-delay: 0.45s; }
+  .process-layout > *:nth-child(6) { animation-delay: 0.55s; }
+  .process-layout > *:nth-child(7) { animation-delay: 0.65s; }
+  .process-layout > *:nth-child(8) { animation-delay: 0.75s; }
+  .process-layout > *:nth-child(9) { animation-delay: 0.85s; }
+  .process-layout > *:nth-child(10) { animation-delay: 0.95s; }
+  .process-layout > *:nth-child(11) { animation-delay: 1.05s; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .card-row { flex-direction: column; align-items: center; }
+    .card { max-width: 100%; }
+    .flow-horizontal { 
+      width: auto; 
+      flex-direction: row;
+      transform: rotate(90deg);
+      padding: 12px 0;
+    }
+    .flow-split .split-line-h,
+    .flow-split .split-branches,
+    .flow-merge .merge-branches,
+    .flow-merge .merge-line-h { width: 280px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>thereafter <span>시스템</span></h1>
+    <p class="subtitle">발견은 There, 구성은 After</p>
+  </div>
+
+  <div class="process-layout">
+
+    <!-- Phase 1: 발견 -->
+    <div class="phase-label">
+      <span class="phase-tag">Phase 1 — 발견 (Discovery)</span>
+      <span class="phase-line"></span>
+    </div>
+
+    <!-- Row 1: There Insight ← → There Source -->
+    <div class="card-row">
+      <div class="card">
+        <div class="label there">THERE</div>
+        <div class="title">There Insight</div>
+        <div class="desc">인사이트 라이브러리</div>
+        <div><span class="badge-live">LIVE</span></div>
+        <a href="#" class="link">바로가기 →</a>
+      </div>
+
+      <div class="flow-horizontal">
+        <div class="flow-h-line">
+          <span class="line"></span>
+          <span class="arrow-right"></span>
+        </div>
+        <div class="flow-label">참조</div>
+      </div>
+
+      <div class="card">
+        <div class="label there">THERE</div>
+        <div class="title">There Source</div>
+        <div class="desc">실행 패턴 & 사례 라이브러리</div>
+      </div>
+    </div>
+
+    <!-- Flow: Row 1 → Row 2 (merge then down) -->
+    <div class="flow-merge">
+      <div class="merge-branches">
+        <div class="merge-branch"><div class="merge-line-up"></div></div>
+        <div class="merge-branch"><div class="merge-line-up"></div></div>
+      </div>
+      <div class="merge-line-h"></div>
+      <div class="merge-center">
+        <div class="merge-line-down"></div>
+        <div class="merge-arrow"></div>
+      </div>
+      <div class="merge-label">인사이트 + 사례 → 모듈 조합</div>
+    </div>
+
+    <!-- Row 2: There Match (center) -->
+    <div class="card-row" style="justify-content: center;">
+      <div class="card" style="max-width: 480px;">
+        <div class="label there">THERE</div>
+        <div class="title">There Match</div>
+        <div class="desc">모듈 조합 추천</div>
+      </div>
+    </div>
+
+    <!-- Flow: Row 2 → Phase 2 -->
+    <div class="flow-vertical">
+      <div class="flow-line"></div>
+      <div class="flow-label">조합 확정 → 메시지 설계</div>
+      <div class="flow-line"></div>
+      <div class="flow-arrow"></div>
+    </div>
+
+    <!-- Phase 2: 실행 -->
+    <div class="phase-label">
+      <span class="phase-tag">Phase 2 — 구성 (Composition)</span>
+      <span class="phase-line"></span>
+    </div>
+
+    <!-- Row 3: After Brief -->
+    <div class="card-row" style="justify-content: center;">
+      <div class="card" style="max-width: 480px;">
+        <div class="label after">AFTER</div>
+        <div class="title">After Brief</div>
+        <div class="desc">20슬라이드 메시지 설계 에디터</div>
+      </div>
+    </div>
+
+    <!-- Flow: Row 3 → Row 4 -->
+    <div class="flow-vertical">
+      <div class="flow-line"></div>
+      <div class="flow-label">메시지 → 프레젠테이션 조립</div>
+      <div class="flow-line"></div>
+      <div class="flow-arrow"></div>
+    </div>
+
+    <!-- Row 4: After Deck -->
+    <div class="card-row" style="justify-content: center;">
+      <div class="card" style="max-width: 480px;">
+        <div class="label after">AFTER</div>
+        <div class="title">After Deck</div>
+        <div class="desc">프레젠테이션 조립</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
