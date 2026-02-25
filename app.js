@@ -66,7 +66,7 @@ const MAX_COMBO = 3;
 const PUBLIC_INSIGHT_IDS = new Set([3, 7, 13, 17, 23, 30, 34, 41, 48, 50]);
 
 const SLIDE_LABELS = ['현상 ①', '현상 ②', '전환', '반전', '본질', '증명', '핵심메시지'];
-const BTL_TYPES = ['경험공간', '이벤트', '전시'];
+const BTL_TYPES = ['경험공간', '판매공간', '비상설전시', '이벤트', '팝업', '컨설팅'];
 const BTL_FIELD_LABELS = {
   spaceDesign: '공간설계',
   experienceDesign: '경험설계',
